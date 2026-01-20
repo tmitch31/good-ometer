@@ -36,14 +36,17 @@ const WOBBLE_CONFIG = {
     chargeDecay: 0.985    // decay per frame once applause ends (slower fallback)
 };
 
-// Six discrete preset levels with expanded range for rightward applause overdrive
+// Six discrete preset levels - optimistic, analog layout
+// Level 1 sits at 9 o'clock (already good in the room)
+// "Zero" would conceptually be around 7-8 o'clock
+// Evenly spaced to avoid big jump after 12 o'clock
 const LEVELS = {
-    1: -120,
-    2: -80,
-    3: -40,
-    4: 0,
-    5: 40,
-    6: 120
+    1: -90,   // 9 o'clock - starting good
+    2: -50,   // Rising
+    3: -10,   // Approaching noon
+    4: 30,    // Past noon, building
+    5: 70,    // Strong
+    6: 110    // Peak - far right but not extreme
 };
 
 // DOM elements
