@@ -31,7 +31,7 @@ const WOBBLE_CONFIG = {
     damping: 0.30,        // looser damping during applause
     kick: 3.2,            // velocity per tap
     maxVelocity: 16.0,    // safety clamp
-    maxOverdrive: 50,     // bump this up from 35 so it's readable on screen
+    maxOverdrive: 200,    // pump can go much further now
     chargeStep: 8,        // degrees added per spacebar tap
     chargeDecay: 0.92     // decay per frame once applause ends (0.88–0.96 range)
 };
@@ -162,7 +162,10 @@ function springStep() {
     currentAngle += velocity;
 
     // Allow temporary rightward overdrive, but not infinite
-    const maxAngle = targetAngle + WOBBLE_CONFIG.maxOverdrive;
+    const maxAngle = Math.max(
+        LEVELS[6] + 30,  // global ceiling (a little past Level 6)
+        targetAngle + WOBBLE_CONFIG.maxOverdrive
+    );
     const minAngle = Math.min(targetAngle, LEVELS[1]); // can't go below level 1, only overdrive right
 
     currentAngle = Math.max(minAngle, Math.min(maxAngle, currentAngle));
