@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Good-ometer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .meter-container {
+            margin: 30px 0;
+            display: none;
+        }
+
+        .meter {
+            height: 40px;
+            background: #e0e0e0;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .meter-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b6b 0%, #ffd93d 50%, #6bcf7f 100%);
+            border-radius: 20px;
+            transition: width 1s ease-out;
+            width: 0%;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 15px;
+        }
+
+        .meter-value {
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .result {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 1.2em;
+            color: #333;
+            min-height: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .result-emoji {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .result-text {
+            font-weight: bold;
+        }
+
+        .history {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .history h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .history-item {
+            background: #f5f5f5;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-name {
+            color: #333;
+            flex: 1;
+        }
+
+        .history-score {
+            font-weight: bold;
+            color: #667eea;
+            margin-left: 10px;
+        }
+
+        .clear-history {
+            margin-top: 10px;
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            background: #ff6b6b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Good-ometer</h1>
+        <p class="subtitle">Measure the goodness of anything!</p>
+
+        <div class="input-section">
+            <input type="text" id="thingInput" placeholder="Enter something to measure..." autofocus>
+        </div>
+
+        <button onclick="measureGoodness()">Measure Goodness</button>
+
+        <div class="meter-container" id="meterContainer">
+            <div class="meter">
+                <div class="meter-fill" id="meterFill">
+                    <span class="meter-value" id="meterValue">0%</span>
+                </div>
+            </div>
+            <div class="result" id="result"></div>
+        </div>
+
+        <div class="history" id="historySection" style="display: none;">
+            <h3>Recent Measurements</h3>
+            <div id="historyList"></div>
+            <button class="clear-history" onclick="clearHistory()">Clear History</button>
+        </div>
+    </div>
+
+    <script>
+        let history = JSON.parse(localStorage.getItem('goodometerHistory') || '[]');
+
+        function measureGoodness() {
+            const input = document.getElementById('thingInput').value.trim();
+
+            if (!input) {
+                alert('Please enter something to measure!');
+                return;
+            }
+
+            // Calculate "goodness" based on simple algorithm
+            const score = calculateGoodness(input);
+
+            // Show the meter
+            document.getElementById('meterContainer').style.display = 'block';
+
+            // Animate the meter
+            setTimeout(() => {
+                document.getElementById('meterFill').style.width = score + '%';
+                document.getElementById('meterValue').textContent = score + '%';
+            }, 100);
+
+            // Show result after animation
+            setTimeout(() => {
+                showResult(input, score);
+                saveToHistory(input, score);
+                updateHistoryDisplay();
+            }, 1200);
+        }
+
+        function calculateGoodness(text) {
+            // Simple "goodness" algorithm based on various factors
+            let score = 50; // Start at neutral
+
+            // Positive words boost score
+            const positiveWords = ['good', 'great', 'awesome', 'amazing', 'wonderful', 'love', 'happy', 'joy', 'peace', 'kind', 'help', 'friend', 'smile', 'sunny', 'puppy', 'kitten', 'pizza', 'chocolate', 'music', 'beautiful'];
+            const negativeWords = ['bad', 'terrible', 'awful', 'hate', 'angry', 'sad', 'war', 'mean', 'ugly', 'hurt', 'pain'];
+
+            const lowerText = text.toLowerCase();
+
+            positiveWords.forEach(word => {
+                if (lowerText.includes(word)) score += 8;
+            });
+
+            negativeWords.forEach(word => {
+                if (lowerText.includes(word)) score -= 10;
+            });
+
+            // Length factor (longer = slightly better)
+            score += Math.min(text.length / 2, 15);
+
+            // Character variety bonus
+            const uniqueChars = new Set(text.toLowerCase()).size;
+            score += uniqueChars;
+
+            // Random factor for fun
+            score += Math.random() * 20 - 10;
+
+            // Clamp between 0 and 100
+            return Math.max(0, Math.min(100, Math.round(score)));
+        }
+
+        function showResult(thing, score) {
+            const resultDiv = document.getElementById('result');
+            let emoji, text;
+
+            if (score >= 90) {
+                emoji = '🌟';
+                text = 'Absolutely Amazing!';
+            } else if (score >= 75) {
+                emoji = '😊';
+                text = 'Pretty Darn Good!';
+            } else if (score >= 60) {
+                emoji = '👍';
+                text = 'Good Enough!';
+            } else if (score >= 40) {
+                emoji = '😐';
+                text = 'Meh, Could Be Better';
+            } else if (score >= 20) {
+                emoji = '😕';
+                text = 'Not So Good';
+            } else {
+                emoji = '😢';
+                text = 'Needs Improvement';
+            }
+
+            resultDiv.innerHTML = `
+                <div class="result-emoji">${emoji}</div>
+                <div class="result-text">${text}</div>
+            `;
+        }
+
+        function saveToHistory(thing, score) {
+            history.unshift({ thing, score, date: new Date().toLocaleString() });
+            if (history.length > 10) history.pop();
+            localStorage.setItem('goodometerHistory', JSON.stringify(history));
+        }
+
+        function updateHistoryDisplay() {
+            if (history.length === 0) {
+                document.getElementById('historySection').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('historySection').style.display = 'block';
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = history.map(item => `
+                <div class="history-item">
+                    <span class="history-name">${item.thing}</span>
+                    <span class="history-score">${item.score}%</span>
+                </div>
+            `).join('');
+        }
+
+        function clearHistory() {
+            if (confirm('Clear all history?')) {
+                history = [];
+                localStorage.removeItem('goodometerHistory');
+                updateHistoryDisplay();
+            }
+        }
+
+        // Allow Enter key to submit
+        document.getElementById('thingInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                measureGoodness();
+            }
+        });
+
+        // Load history on page load
+        updateHistoryDisplay();
+    </script>
+</body>
+</html>
