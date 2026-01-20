@@ -37,16 +37,15 @@ const WOBBLE_CONFIG = {
 };
 
 // Six discrete preset levels - optimistic, analog layout
-// Level 1 sits at 9 o'clock (already good in the room)
-// "Zero" would conceptually be around 7-8 o'clock
+// Level 1 sits closer to 8:30 - "there is good, but it's grounded"
 // Evenly spaced to avoid big jump after 12 o'clock
 const LEVELS = {
-    1: -90,   // 9 o'clock - starting good
-    2: -50,   // Rising
-    3: -10,   // Approaching noon
-    4: 30,    // Past noon, building
-    5: 70,    // Strong
-    6: 110    // Peak - far right but not extreme
+    1: -105,  // Closer to 8:30 - grounded start
+    2: -65,   // Rising
+    3: -25,   // Approaching noon
+    4: 15,    // Past noon, building
+    5: 65,    // Strong
+    6: 115    // Peak - strong but not cartoonish
 };
 
 // DOM elements
@@ -182,8 +181,8 @@ function springStep() {
                       Math.abs(applauseCharge) < 0.1;
 
     if (isSettled) {
-        // Snap to target and stop animating
-        currentAngle = targetAngle;
+        // Allow soft settle slightly past Level 6 (no snap-back)
+        currentAngle = Math.min(currentAngle, LEVELS[6] + 20);
         velocity = 0;
         applauseCharge = 0;
         setNeedleRotation(currentAngle);
