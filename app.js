@@ -36,6 +36,9 @@ const WOBBLE_CONFIG = {
     chargeDecay: 0.985    // decay per frame once applause ends (slower fallback)
 };
 
+// Arrow key nudge amount (small incremental adjustments)
+const ARROW_STEP_DEGREES = 5;
+
 // Six discrete preset levels - optimistic, analog layout
 // Level 1 sits closer to 8:30 - "there is good, but it's grounded"
 // Evenly spaced to avoid big jump after 12 o'clock
@@ -229,21 +232,43 @@ function setNeedleToLevel(level) {
 }
 
 /**
- * Step up one level
+ * Nudge needle up (small incremental adjustment)
+ * Arrow keys provide fine control, not level jumps
  */
 function stepUp() {
-    if (currentLevel < 6) {
-        setNeedleToLevel(currentLevel + 1);
+    // Nudge target angle up by small amount
+    const newTarget = targetAngle + ARROW_STEP_DEGREES;
+    const maxAllowed = LEVELS[6] + 20; // Can nudge slightly past Level 6
+
+    targetAngle = Math.min(newTarget, maxAllowed);
+
+    // Ensure animation loop is running
+    if (!isAnimating) {
+        isAnimating = true;
+        animationFrameId = requestAnimationFrame(springStep);
     }
+
+    console.log(`Nudge up → ${targetAngle.toFixed(1)}°`);
 }
 
 /**
- * Step down one level
+ * Nudge needle down (small incremental adjustment)
+ * Arrow keys provide fine control, not level jumps
  */
 function stepDown() {
-    if (currentLevel > 1) {
-        setNeedleToLevel(currentLevel - 1);
+    // Nudge target angle down by small amount
+    const newTarget = targetAngle - ARROW_STEP_DEGREES;
+    const minAllowed = LEVELS[1]; // Can't go below Level 1
+
+    targetAngle = Math.max(newTarget, minAllowed);
+
+    // Ensure animation loop is running
+    if (!isAnimating) {
+        isAnimating = true;
+        animationFrameId = requestAnimationFrame(springStep);
     }
+
+    console.log(`Nudge down → ${targetAngle.toFixed(1)}°`);
 }
 
 /**
