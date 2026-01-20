@@ -14,6 +14,8 @@ let targetAngle = 0;
 let velocity = 0;
 let animationFrameId = null;
 
+let applauseCharge = 0; // degrees added to the right of the current level
+
 // Spring physics constants (tuned for smooth, mechanical feel)
 const SPRING_CONFIG = {
     stiffness: 0.08,      // Lower = slower, calmer movement
@@ -29,7 +31,9 @@ const WOBBLE_CONFIG = {
     damping: 0.30,        // looser damping during applause
     kick: 3.2,            // velocity per tap
     maxVelocity: 16.0,    // safety clamp
-    maxOverdrive: 35      // degrees beyond target the needle can swing
+    maxOverdrive: 50,     // bump this up from 35 so it's readable on screen
+    chargeStep: 8,        // degrees added per spacebar tap
+    chargeDecay: 0.92     // decay per frame once applause ends (0.88–0.96 range)
 };
 
 // Six discrete preset levels with expanded range for rightward applause overdrive
@@ -126,12 +130,23 @@ function setNeedleRotation(angle) {
  * Spring physics animation step
  */
 function springStep() {
-    // Calculate spring force (Hooke's law)
-    const displacement = targetAngle - currentAngle;
+    const now = performance.now();
+
+    // Decay applause charge when not actively applauding
+    if (now >= wobbleUntil) {
+        applauseCharge *= WOBBLE_CONFIG.chargeDecay;
+        // Snap to zero when very small
+        if (Math.abs(applauseCharge) < 0.1) {
+            applauseCharge = 0;
+        }
+    }
+
+    // Calculate spring force using effective target (includes applause charge)
+    const effectiveTarget = targetAngle + applauseCharge;
+    const displacement = effectiveTarget - currentAngle;
     const springForce = displacement * SPRING_CONFIG.stiffness;
 
     // Calculate damping force
-    const now = performance.now();
     const damping = (now < wobbleUntil) ? WOBBLE_CONFIG.damping : SPRING_CONFIG.damping;
     const dampingForce = velocity * damping;
 
@@ -155,14 +170,16 @@ function springStep() {
     // Apply the rotation
     setNeedleRotation(currentAngle);
 
-    // Check if we're close enough to stop
+    // Check if we're close enough to stop (also check applauseCharge)
     const isSettled = Math.abs(displacement) < SPRING_CONFIG.precision &&
-                      Math.abs(velocity) < SPRING_CONFIG.precision;
+                      Math.abs(velocity) < SPRING_CONFIG.precision &&
+                      Math.abs(applauseCharge) < 0.1;
 
     if (isSettled) {
         // Snap to target and stop animating
         currentAngle = targetAngle;
         velocity = 0;
+        applauseCharge = 0;
         setNeedleRotation(currentAngle);
         isAnimating = false;
         animationFrameId = null;
@@ -233,10 +250,14 @@ function reset() {
 
 /**
  * Trigger rightward applause pump
- * Each press pushes the needle to the right, then naturally settles back
+ * Each press adds charge that shifts the target right, building with repeated taps
  */
 function triggerWobble() {
-    // Rightward kick only (not symmetric)
+    // Add charge (stacks with repeated presses)
+    applauseCharge += WOBBLE_CONFIG.chargeStep;
+    applauseCharge = Math.min(WOBBLE_CONFIG.maxOverdrive, applauseCharge);
+
+    // Also add a velocity kick for immediate responsiveness
     const kick = Math.random() * WOBBLE_CONFIG.kick;
     velocity += kick;
 
@@ -249,7 +270,7 @@ function triggerWobble() {
         animationFrameId = requestAnimationFrame(springStep);
     }
 
-    console.log('Applause pump (rightward kick)');
+    console.log(`Applause charge: ${applauseCharge.toFixed(1)}°`);
 }
 
 /**
