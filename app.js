@@ -24,23 +24,22 @@ const SPRING_CONFIG = {
 
 let wobbleUntil = 0;
 
-// MC-friendly applause mode
 const WOBBLE_CONFIG = {
-    durationMs: 900,    // how long applause mode lasts after a tap
-    damping: 0.30,      // lower than normal so it rings
-    kick: 3.2,          // per tap (we'll still randomize slightly)
-    maxVelocity: 14.0   // safety clamp
+    durationMs: 900,      // how long applause mode lasts after last tap
+    damping: 0.30,        // looser damping during applause
+    kick: 3.2,            // velocity per tap
+    maxVelocity: 16.0,    // safety clamp
+    maxOverdrive: 35      // degrees beyond target the needle can swing
 };
 
-// Six discrete preset levels with smaller, more subtle angle ranges
-// Gauge range: -60° (left/resting) to +60° (right/fully charged)
+// Six discrete preset levels with expanded range for rightward applause overdrive
 const LEVELS = {
-    1: -60,   // Resting
-    2: -36,   // Slightly Rising
-    3: -12,   // Rising
-    4: 12,    // Strong Movement
-    5: 36,    // Near the Top
-    6: 60     // Fully Charged
+    1: -120,
+    2: -80,
+    3: -40,
+    4: 0,
+    5: 40,
+    6: 120
 };
 
 // DOM elements
@@ -147,6 +146,12 @@ function springStep() {
 
     currentAngle += velocity;
 
+    // Allow temporary rightward overdrive, but not infinite
+    const maxAngle = targetAngle + WOBBLE_CONFIG.maxOverdrive;
+    const minAngle = Math.min(targetAngle, LEVELS[1]); // can't go below level 1, only overdrive right
+
+    currentAngle = Math.max(minAngle, Math.min(maxAngle, currentAngle));
+
     // Apply the rotation
     setNeedleRotation(currentAngle);
 
@@ -227,12 +232,12 @@ function reset() {
 }
 
 /**
- * Trigger applause wobble effect
- * Adds a random velocity kick for organic movement
+ * Trigger rightward applause pump
+ * Each press pushes the needle to the right, then naturally settles back
  */
 function triggerWobble() {
-    // Inject velocity on each Space press so taps stack
-    const kick = (Math.random() * 2 - 1) * WOBBLE_CONFIG.kick;
+    // Rightward kick only (not symmetric)
+    const kick = Math.random() * WOBBLE_CONFIG.kick;
     velocity += kick;
 
     // Enter applause mode with reduced damping
@@ -244,7 +249,7 @@ function triggerWobble() {
         animationFrameId = requestAnimationFrame(springStep);
     }
 
-    console.log('Applause wobble (kick)');
+    console.log('Applause pump (rightward kick)');
 }
 
 /**
