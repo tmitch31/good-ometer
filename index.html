@@ -3,341 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Good-ometer</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .container {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 500px;
-            width: 100%;
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 2.5em;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 0.9em;
-        }
-
-        .input-section {
-            margin-bottom: 30px;
-        }
-
-        input[type="text"] {
-            width: 100%;
-            padding: 15px;
-            font-size: 16px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            transition: border-color 0.3s;
-        }
-
-        input[type="text"]:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        button {
-            width: 100%;
-            padding: 15px;
-            font-size: 18px;
-            font-weight: bold;
-            color: white;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        button:active {
-            transform: translateY(0);
-        }
-
-        .meter-container {
-            margin: 30px 0;
-            display: none;
-        }
-
-        .meter {
-            height: 40px;
-            background: #e0e0e0;
-            border-radius: 20px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .meter-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #ff6b6b 0%, #ffd93d 50%, #6bcf7f 100%);
-            border-radius: 20px;
-            transition: width 1s ease-out;
-            width: 0%;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding-right: 15px;
-        }
-
-        .meter-value {
-            color: white;
-            font-weight: bold;
-            font-size: 18px;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-        }
-
-        .result {
-            margin-top: 20px;
-            text-align: center;
-            font-size: 1.2em;
-            color: #333;
-            min-height: 60px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .result-emoji {
-            font-size: 3em;
-            margin-bottom: 10px;
-        }
-
-        .result-text {
-            font-weight: bold;
-        }
-
-        .history {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 2px solid #e0e0e0;
-        }
-
-        .history h3 {
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 1.2em;
-        }
-
-        .history-item {
-            background: #f5f5f5;
-            padding: 10px 15px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .history-name {
-            color: #333;
-            flex: 1;
-        }
-
-        .history-score {
-            font-weight: bold;
-            color: #667eea;
-            margin-left: 10px;
-        }
-
-        .clear-history {
-            margin-top: 10px;
-            width: 100%;
-            padding: 10px;
-            font-size: 14px;
-            background: #ff6b6b;
-        }
-    </style>
+    <title>GOOD-OMETER</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Good-ometer</h1>
-        <p class="subtitle">Measure the goodness of anything!</p>
-
-        <div class="input-section">
-            <input type="text" id="thingInput" placeholder="Enter something to measure..." autofocus>
-        </div>
-
-        <button onclick="measureGoodness()">Measure Goodness</button>
-
-        <div class="meter-container" id="meterContainer">
-            <div class="meter">
-                <div class="meter-fill" id="meterFill">
-                    <span class="meter-value" id="meterValue">0%</span>
+    <!-- Help overlay (hidden by default) -->
+    <div id="help-overlay" class="help-overlay hidden">
+        <div class="help-content">
+            <h2>OPERATOR CONTROLS</h2>
+            <div class="help-grid">
+                <div class="help-item">
+                    <span class="help-key">1-6</span>
+                    <span class="help-desc">Jump to level</span>
+                </div>
+                <div class="help-item">
+                    <span class="help-key">↑</span>
+                    <span class="help-desc">Step up</span>
+                </div>
+                <div class="help-item">
+                    <span class="help-key">↓</span>
+                    <span class="help-desc">Step down</span>
+                </div>
+                <div class="help-item">
+                    <span class="help-key">R</span>
+                    <span class="help-desc">Reset to Level 1</span>
+                </div>
+                <div class="help-item">
+                    <span class="help-key">SPACE</span>
+                    <span class="help-desc">Applause wobble</span>
+                </div>
+                <div class="help-item">
+                    <span class="help-key">H</span>
+                    <span class="help-desc">Toggle help</span>
                 </div>
             </div>
-            <div class="result" id="result"></div>
-        </div>
-
-        <div class="history" id="historySection" style="display: none;">
-            <h3>Recent Measurements</h3>
-            <div id="historyList"></div>
-            <button class="clear-history" onclick="clearHistory()">Clear History</button>
         </div>
     </div>
 
-    <script>
-        let history = JSON.parse(localStorage.getItem('goodometerHistory') || '[]');
+    <!-- Main gauge container -->
+    <div class="gauge-container">
+        <svg id="gauge" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+            <!-- Definitions for gradients and effects -->
+            <defs>
+                <!-- Brass gradient for gauge face -->
+                <radialGradient id="brassGradient" cx="50%" cy="50%">
+                    <stop offset="0%" style="stop-color:#d4af37;stop-opacity:1" />
+                    <stop offset="50%" style="stop-color:#c5a028;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#8b7355;stop-opacity:1" />
+                </radialGradient>
 
-        function measureGoodness() {
-            const input = document.getElementById('thingInput').value.trim();
+                <!-- Dark iron gradient for outer ring -->
+                <radialGradient id="ironGradient" cx="50%" cy="50%">
+                    <stop offset="0%" style="stop-color:#3a3a3a;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#1a1a1a;stop-opacity:1" />
+                </radialGradient>
 
-            if (!input) {
-                alert('Please enter something to measure!');
-                return;
-            }
+                <!-- Needle gradient -->
+                <linearGradient id="needleGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#8b0000;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#4a0000;stop-opacity:1" />
+                </linearGradient>
 
-            // Calculate "goodness" based on simple algorithm
-            const score = calculateGoodness(input);
+                <!-- Embossed text filter -->
+                <filter id="emboss">
+                    <feGaussianBlur in="SourceAlpha" stdDeviation="2" result="blur"/>
+                    <feOffset in="blur" dx="2" dy="2" result="offsetBlur"/>
+                    <feSpecularLighting in="blur" surfaceScale="5" specularConstant="0.5"
+                                       specularExponent="10" lighting-color="#ffffff" result="specOut">
+                        <fePointLight x="-5000" y="-10000" z="20000"/>
+                    </feSpecularLighting>
+                    <feComposite in="specOut" in2="SourceAlpha" operator="in" result="specOut"/>
+                    <feComposite in="SourceGraphic" in2="specOut" operator="arithmetic"
+                                k1="0" k2="1" k3="1" k4="0"/>
+                </filter>
 
-            // Show the meter
-            document.getElementById('meterContainer').style.display = 'block';
+                <!-- Shadow for depth -->
+                <filter id="dropShadow" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur in="SourceAlpha" stdDeviation="4"/>
+                    <feOffset dx="3" dy="3" result="offsetblur"/>
+                    <feComponentTransfer>
+                        <feFuncA type="linear" slope="0.5"/>
+                    </feComponentTransfer>
+                    <feMerge>
+                        <feMergeNode/>
+                        <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                </filter>
+            </defs>
 
-            // Animate the meter
-            setTimeout(() => {
-                document.getElementById('meterFill').style.width = score + '%';
-                document.getElementById('meterValue').textContent = score + '%';
-            }, 100);
+            <!-- Outer iron ring -->
+            <circle cx="400" cy="350" r="280" fill="url(#ironGradient)" filter="url(#dropShadow)"/>
 
-            // Show result after animation
-            setTimeout(() => {
-                showResult(input, score);
-                saveToHistory(input, score);
-                updateHistoryDisplay();
-            }, 1200);
-        }
+            <!-- Rivets around outer ring -->
+            <circle cx="400" cy="70" r="8" fill="#2a2a2a" stroke="#1a1a1a" stroke-width="2"/>
+            <circle cx="600" cy="150" r="8" fill="#2a2a2a" stroke="#1a1a1a" stroke-width="2"/>
+            <circle cx="680" cy="350" r="8" fill="#2a2a2a" stroke="#1a1a1a" stroke-width="2"/>
+            <circle cx="600" cy="550" r="8" fill="#2a2a2a" stroke="#1a1a1a" stroke-width="2"/>
+            <circle cx="400" cy="630" r="8" fill="#2a2a2a" stroke="#1a1a1a" stroke-width="2"/>
+            <circle cx="200" cy="550" r="8" fill="#2a2a2a" stroke="#1a1a1a" stroke-width="2"/>
+            <circle cx="120" cy="350" r="8" fill="#2a2a2a" stroke="#1a1a1a" stroke-width="2"/>
+            <circle cx="200" cy="150" r="8" fill="#2a2a2a" stroke="#1a1a1a" stroke-width="2"/>
 
-        function calculateGoodness(text) {
-            // Simple "goodness" algorithm based on various factors
-            let score = 50; // Start at neutral
+            <!-- Main brass face -->
+            <circle cx="400" cy="350" r="250" fill="url(#brassGradient)"/>
 
-            // Positive words boost score
-            const positiveWords = ['good', 'great', 'awesome', 'amazing', 'wonderful', 'love', 'happy', 'joy', 'peace', 'kind', 'help', 'friend', 'smile', 'sunny', 'puppy', 'kitten', 'pizza', 'chocolate', 'music', 'beautiful'];
-            const negativeWords = ['bad', 'terrible', 'awful', 'hate', 'angry', 'sad', 'war', 'mean', 'ugly', 'hurt', 'pain'];
+            <!-- Subtle patina texture (semi-transparent circles) -->
+            <circle cx="350" cy="300" r="40" fill="#8b7355" opacity="0.1"/>
+            <circle cx="480" cy="280" r="30" fill="#8b7355" opacity="0.08"/>
+            <circle cx="320" cy="420" r="35" fill="#8b7355" opacity="0.09"/>
+            <circle cx="500" cy="400" r="25" fill="#8b7355" opacity="0.07"/>
 
-            const lowerText = text.toLowerCase();
+            <!-- Tick marks (no numbers) -->
+            <g id="tick-marks">
+                <!-- Major ticks at key positions -->
+                <line x1="400" y1="115" x2="400" y2="135" stroke="#4a3728" stroke-width="3" opacity="0.6"/>
+                <line x1="592" y1="172" x2="580" y2="185" stroke="#4a3728" stroke-width="3" opacity="0.6"/>
+                <line x1="635" y1="350" x2="615" y2="350" stroke="#4a3728" stroke-width="3" opacity="0.6"/>
+                <line x1="592" y1="528" x2="580" y2="515" stroke="#4a3728" stroke-width="3" opacity="0.6"/>
+                <line x1="400" y1="585" x2="400" y2="565" stroke="#4a3728" stroke-width="3" opacity="0.6"/>
+                <line x1="208" y1="528" x2="220" y2="515" stroke="#4a3728" stroke-width="3" opacity="0.6"/>
+                <line x1="165" y1="350" x2="185" y2="350" stroke="#4a3728" stroke-width="3" opacity="0.6"/>
+                <line x1="208" y1="172" x2="220" y2="185" stroke="#4a3728" stroke-width="3" opacity="0.6"/>
 
-            positiveWords.forEach(word => {
-                if (lowerText.includes(word)) score += 8;
-            });
+                <!-- Minor ticks -->
+                <line x1="337" y1="125" x2="345" y2="140" stroke="#4a3728" stroke-width="2" opacity="0.4"/>
+                <line x1="463" y1="125" x2="455" y2="140" stroke="#4a3728" stroke-width="2" opacity="0.4"/>
+                <line x1="270" y1="165" x2="283" y2="175" stroke="#4a3728" stroke-width="2" opacity="0.4"/>
+                <line x1="530" y1="165" x2="517" y2="175" stroke="#4a3728" stroke-width="2" opacity="0.4"/>
+                <line x1="530" y1="535" x2="517" y2="525" stroke="#4a3728" stroke-width="2" opacity="0.4"/>
+                <line x1="270" y1="535" x2="283" y2="525" stroke="#4a3728" stroke-width="2" opacity="0.4"/>
+                <line x1="337" y1="575" x2="345" y2="560" stroke="#4a3728" stroke-width="2" opacity="0.4"/>
+                <line x1="463" y1="575" x2="455" y2="560" stroke="#4a3728" stroke-width="2" opacity="0.4"/>
+            </g>
 
-            negativeWords.forEach(word => {
-                if (lowerText.includes(word)) score -= 10;
-            });
+            <!-- Engraved/embossed title text -->
+            <text x="400" y="470" font-family="serif" font-size="48" font-weight="bold"
+                  text-anchor="middle" fill="#8b7355" filter="url(#emboss)"
+                  letter-spacing="4">GOOD-OMETER</text>
 
-            // Length factor (longer = slightly better)
-            score += Math.min(text.length / 2, 15);
+            <!-- Center hub/pivot -->
+            <circle cx="400" cy="350" r="20" fill="url(#ironGradient)" filter="url(#dropShadow)"/>
+            <circle cx="400" cy="350" r="12" fill="#2a2a2a"/>
 
-            // Character variety bonus
-            const uniqueChars = new Set(text.toLowerCase()).size;
-            score += uniqueChars;
+            <!-- Needle (will be rotated by JavaScript) -->
+            <g id="needle" transform-origin="400 350">
+                <!-- Needle shadow for depth -->
+                <path d="M 395 350 L 400 140 L 405 350 Z" fill="#000000" opacity="0.3" transform="translate(3, 3)"/>
+                <!-- Main needle body -->
+                <path d="M 395 350 L 400 140 L 405 350 Z" fill="url(#needleGradient)" stroke="#2a0000" stroke-width="1"/>
+                <!-- Needle center cap -->
+                <circle cx="400" cy="350" r="8" fill="#8b0000" stroke="#4a0000" stroke-width="2"/>
+            </g>
 
-            // Random factor for fun
-            score += Math.random() * 20 - 10;
+            <!-- Glass reflection effect (subtle) -->
+            <ellipse cx="300" cy="250" rx="100" ry="80" fill="#ffffff" opacity="0.05"/>
+            <ellipse cx="320" cy="240" rx="60" ry="50" fill="#ffffff" opacity="0.08"/>
+        </svg>
+    </div>
 
-            // Clamp between 0 and 100
-            return Math.max(0, Math.min(100, Math.round(score)));
-        }
-
-        function showResult(thing, score) {
-            const resultDiv = document.getElementById('result');
-            let emoji, text;
-
-            if (score >= 90) {
-                emoji = '🌟';
-                text = 'Absolutely Amazing!';
-            } else if (score >= 75) {
-                emoji = '😊';
-                text = 'Pretty Darn Good!';
-            } else if (score >= 60) {
-                emoji = '👍';
-                text = 'Good Enough!';
-            } else if (score >= 40) {
-                emoji = '😐';
-                text = 'Meh, Could Be Better';
-            } else if (score >= 20) {
-                emoji = '😕';
-                text = 'Not So Good';
-            } else {
-                emoji = '😢';
-                text = 'Needs Improvement';
-            }
-
-            resultDiv.innerHTML = `
-                <div class="result-emoji">${emoji}</div>
-                <div class="result-text">${text}</div>
-            `;
-        }
-
-        function saveToHistory(thing, score) {
-            history.unshift({ thing, score, date: new Date().toLocaleString() });
-            if (history.length > 10) history.pop();
-            localStorage.setItem('goodometerHistory', JSON.stringify(history));
-        }
-
-        function updateHistoryDisplay() {
-            if (history.length === 0) {
-                document.getElementById('historySection').style.display = 'none';
-                return;
-            }
-
-            document.getElementById('historySection').style.display = 'block';
-            const historyList = document.getElementById('historyList');
-            historyList.innerHTML = history.map(item => `
-                <div class="history-item">
-                    <span class="history-name">${item.thing}</span>
-                    <span class="history-score">${item.score}%</span>
-                </div>
-            `).join('');
-        }
-
-        function clearHistory() {
-            if (confirm('Clear all history?')) {
-                history = [];
-                localStorage.removeItem('goodometerHistory');
-                updateHistoryDisplay();
-            }
-        }
-
-        // Allow Enter key to submit
-        document.getElementById('thingInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                measureGoodness();
-            }
-        });
-
-        // Load history on page load
-        updateHistoryDisplay();
-    </script>
+    <script src="app.js"></script>
 </body>
 </html>
