@@ -110,7 +110,8 @@ function handleKeyPress(event) {
  * @param {number} angle - Rotation angle in degrees
  */
 function setNeedleRotation(angle) {
-    needle.style.transform = `rotate(${angle}deg)`;
+    // Use SVG transform attribute with rotation center at (400, 350)
+    needle.setAttribute('transform', `rotate(${angle} 400 350)`);
 }
 
 /**

@@ -41,7 +41,8 @@ body {
 
 /* Needle - animation handled by JavaScript spring physics */
 #needle {
-    transform-origin: 400px 350px;
+    /* Rotation is handled via SVG transform in JS: rotate(angle 400 350) */
+    will-change: transform;
 }
 
 /* Help overlay */
