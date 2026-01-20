@@ -7,7 +7,6 @@
 // State
 let currentLevel = 1;
 let isAnimating = false;
-let isWobbling = false;
 
 // Spring physics state
 let currentAngle = 0;
@@ -212,45 +211,25 @@ function reset() {
 }
 
 /**
- * Trigger gentle applause wobble effect
- * Subtle oscillation around current position
+ * Trigger applause wobble effect
+ * Adds a random velocity kick for organic movement
  */
 function triggerWobble() {
-    if (isWobbling || isAnimating) return;
+    // Allow wobble even if animating (but cap it so it doesn't get silly)
+    const MAX_KICK = 2.0;
 
-    isWobbling = true;
+    // Randomized kick feels more "alive"
+    const kick = (Math.random() * 2 - 1) * MAX_KICK;
 
-    // Store the current target
-    const baseAngle = targetAngle;
+    velocity += kick;
 
-    // Gentle wobble sequence (smaller movements, slower)
-    const wobbleSequence = [
-        { angle: baseAngle + 3, delay: 0 },
-        { angle: baseAngle - 2, delay: 150 },
-        { angle: baseAngle + 1, delay: 300 },
-        { angle: baseAngle, delay: 450 }
-    ];
+    // Ensure animation loop is running
+    if (!isAnimating) {
+        isAnimating = true;
+        animationFrameId = requestAnimationFrame(springStep);
+    }
 
-    // Execute wobble sequence
-    wobbleSequence.forEach(({ angle, delay }) => {
-        setTimeout(() => {
-            // Only wobble if we haven't changed levels
-            if (Math.abs(targetAngle - baseAngle) < 0.1) {
-                targetAngle = angle;
-                if (!isAnimating) {
-                    isAnimating = true;
-                    animationFrameId = requestAnimationFrame(springStep);
-                }
-            }
-        }, delay);
-    });
-
-    // Reset wobbling flag after sequence completes
-    setTimeout(() => {
-        isWobbling = false;
-    }, 650);
-
-    console.log('Gentle wobble');
+    console.log('Applause wobble (kick)');
 }
 
 /**
