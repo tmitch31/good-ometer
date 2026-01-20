@@ -22,6 +22,16 @@ const SPRING_CONFIG = {
     precision: 0.01       // Stop animating when close enough
 };
 
+let wobbleUntil = 0;
+
+// MC-friendly applause mode
+const WOBBLE_CONFIG = {
+    durationMs: 900,    // how long applause mode lasts after a tap
+    damping: 0.30,      // lower than normal so it rings
+    kick: 3.2,          // per tap (we'll still randomize slightly)
+    maxVelocity: 14.0   // safety clamp
+};
+
 // Six discrete preset levels with smaller, more subtle angle ranges
 // Gauge range: -60° (left/resting) to +60° (right/fully charged)
 const LEVELS = {
@@ -122,13 +132,19 @@ function springStep() {
     const springForce = displacement * SPRING_CONFIG.stiffness;
 
     // Calculate damping force
-    const dampingForce = velocity * SPRING_CONFIG.damping;
+    const now = performance.now();
+    const damping = (now < wobbleUntil) ? WOBBLE_CONFIG.damping : SPRING_CONFIG.damping;
+    const dampingForce = velocity * damping;
 
     // Calculate acceleration (F = ma, so a = F/m)
     const acceleration = (springForce - dampingForce) / SPRING_CONFIG.mass;
 
     // Update velocity and position
     velocity += acceleration;
+
+    // Safety clamp so repeated taps build energy but never become chaotic
+    velocity = Math.max(-WOBBLE_CONFIG.maxVelocity, Math.min(WOBBLE_CONFIG.maxVelocity, velocity));
+
     currentAngle += velocity;
 
     // Apply the rotation
@@ -215,13 +231,12 @@ function reset() {
  * Adds a random velocity kick for organic movement
  */
 function triggerWobble() {
-    // Allow wobble even if animating (but cap it so it doesn't get silly)
-    const MAX_KICK = 2.6;
-
-    // Randomized kick feels more "alive"
-    const kick = (Math.random() * 2 - 1) * MAX_KICK;
-
+    // Inject velocity on each Space press so taps stack
+    const kick = (Math.random() * 2 - 1) * WOBBLE_CONFIG.kick;
     velocity += kick;
+
+    // Enter applause mode with reduced damping
+    wobbleUntil = performance.now() + WOBBLE_CONFIG.durationMs;
 
     // Ensure animation loop is running
     if (!isAnimating) {
