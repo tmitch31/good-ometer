@@ -15,6 +15,7 @@ let velocity = 0;
 let animationFrameId = null;
 
 let applauseCharge = 0; // degrees added to the right of the current level
+let idlePhase = Math.random() * Math.PI * 2; // phase for idle oscillation
 
 // Spring physics constants (tuned for smooth, mechanical feel)
 const SPRING_CONFIG = {
@@ -38,6 +39,12 @@ const WOBBLE_CONFIG = {
 
 // Arrow key nudge amount (small incremental adjustments)
 const ARROW_STEP_DEGREES = 5;
+
+// Idle needle motion (subtle "alive" oscillation when at rest)
+const IDLE_CONFIG = {
+    amplitude: 0.4,   // degrees
+    speed: 0.0012     // radians per ms
+};
 
 // Six discrete preset levels - optimistic, analog layout
 // Level 1 sits closer to 8:30 - "there is good, but it's grounded"
@@ -184,14 +191,27 @@ function springStep() {
                       Math.abs(applauseCharge) < 0.1;
 
     if (isSettled) {
-        // Allow soft settle slightly past Level 6 (no snap-back)
-        currentAngle = Math.min(currentAngle, LEVELS[6] + 20);
         velocity = 0;
-        applauseCharge = 0;
+
+        // Only run idle life when applause is inactive
+        const now = performance.now();
+        const applauseActive = (now < wobbleUntil) || (applauseCharge > 0);
+
+        if (!applauseActive) {
+            idlePhase += IDLE_CONFIG.speed * 16; // approx per-frame advance
+            const idleOffset = Math.sin(idlePhase) * IDLE_CONFIG.amplitude;
+
+            const idleAngle = Math.min(currentAngle + idleOffset, LEVELS[6] + 20);
+            setNeedleRotation(idleAngle);
+
+            animationFrameId = requestAnimationFrame(springStep);
+            return;
+        }
+
+        // If applause is active, just hold steady and keep animating normally
         setNeedleRotation(currentAngle);
-        isAnimating = false;
-        animationFrameId = null;
-        console.log(`Settled at ${currentAngle.toFixed(1)}°`);
+        animationFrameId = requestAnimationFrame(springStep);
+        return;
     } else {
         // Continue animation
         animationFrameId = requestAnimationFrame(springStep);
