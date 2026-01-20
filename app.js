@@ -216,7 +216,7 @@ function reset() {
  */
 function triggerWobble() {
     // Allow wobble even if animating (but cap it so it doesn't get silly)
-    const MAX_KICK = 2.0;
+    const MAX_KICK = 2.6;
 
     // Randomized kick feels more "alive"
     const kick = (Math.random() * 2 - 1) * MAX_KICK;
