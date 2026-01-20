@@ -33,7 +33,7 @@ const WOBBLE_CONFIG = {
     maxVelocity: 16.0,    // safety clamp
     maxOverdrive: 200,    // pump can go much further now
     chargeStep: 8,        // degrees added per spacebar tap
-    chargeDecay: 0.97     // decay per frame once applause ends (slower fallback)
+    chargeDecay: 0.985    // decay per frame once applause ends (slower fallback)
 };
 
 // Six discrete preset levels with expanded range for rightward applause overdrive
