@@ -46,18 +46,22 @@ const IDLE_CONFIG = {
     speed: 0.0012     // radians per ms
 };
 
-// Six discrete preset levels - tick-based mapping
-// Full dial sweep: 40 equal ticks from -135° to +115° (250° range, 6.25° per tick)
-// Level 1 = tick #4 (10% into sweep, slightly below 8 o'clock)
-// Level 6 = tick #40 (100%, far-right maximum)
-// Levels 2-5 evenly spaced (7.2 ticks apart)
+// Dial geometry - 40 tick marks across the full angular sweep
+const DIAL_MIN_ANGLE = -150;  // Left-most resting position (just below 8 o'clock)
+const DIAL_MAX_ANGLE = 115;   // Far-right maximum
+const TICK_COUNT = 40;
+const TICK_ANGLE = (DIAL_MAX_ANGLE - DIAL_MIN_ANGLE) / TICK_COUNT;  // 6.625° per tick
+
+// Six discrete preset levels
+// Level 1 = tick #4, Level 6 = DIAL_MAX_ANGLE
+// Levels 2-5 evenly spaced between L1 and L6
 const LEVELS = {
-    1: -110,  // Tick #4 - grounded start, slightly below 8 o'clock
-    2: -65,   // Tick #11.2 - rising
-    3: -20,   // Tick #18.4 - approaching noon
-    4: 25,    // Tick #25.6 - past noon, building
-    5: 70,    // Tick #32.8 - strong
-    6: 115    // Tick #40 - peak, far-right maximum
+    1: -123.5,  // Tick #4: DIAL_MIN_ANGLE + (4 * TICK_ANGLE) = -150 + 26.5 = -123.5°
+    2: -75.8,   // Evenly spaced: -123.5 + 47.7 = -75.8°
+    3: -28.1,   // Evenly spaced: -75.8 + 47.7 = -28.1°
+    4: 19.6,    // Evenly spaced: -28.1 + 47.7 = 19.6°
+    5: 67.3,    // Evenly spaced: 19.6 + 47.7 = 67.3°
+    6: 115      // DIAL_MAX_ANGLE = 115° (far-right maximum)
 };
 
 // DOM elements
