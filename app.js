@@ -53,14 +53,14 @@ const TICK_COUNT = 40;
 const TICK_ANGLE = (DIAL_MAX_ANGLE - DIAL_MIN_ANGLE) / TICK_COUNT;  // 6.625° per tick
 
 // Six discrete preset levels
-// Level 1 = just below 8 o'clock (-120°), Level 6 = DIAL_MAX_ANGLE
+// Level 1 = just below 8 o'clock (-135°), Level 6 = DIAL_MAX_ANGLE
 // Levels 2-5 evenly spaced between L1 and L6
 const LEVELS = {
-    1: -120,    // Just below 8 o'clock position
-    2: -73,     // Evenly spaced: -120 + 47 = -73°
-    3: -26,     // Evenly spaced: -73 + 47 = -26°
-    4: 21,      // Evenly spaced: -26 + 47 = 21°
-    5: 68,      // Evenly spaced: 21 + 47 = 68°
+    1: -135,    // Just below 8 o'clock position (more counter-clockwise)
+    2: -85,     // Evenly spaced: -135 + 50 = -85°
+    3: -35,     // Evenly spaced: -85 + 50 = -35°
+    4: 15,      // Evenly spaced: -35 + 50 = 15°
+    5: 65,      // Evenly spaced: 15 + 50 = 65°
     6: 115      // DIAL_MAX_ANGLE = 115° (far-right maximum)
 };
 
