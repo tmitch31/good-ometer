@@ -46,16 +46,18 @@ const IDLE_CONFIG = {
     speed: 0.0012     // radians per ms
 };
 
-// Six discrete preset levels - optimistic, analog layout
-// Level 1 sits closer to 8:30 - "there is good, but it's grounded"
-// Evenly spaced to avoid big jump after 12 o'clock
+// Six discrete preset levels - tick-based mapping
+// Full dial sweep: 40 equal ticks from -135° to +115° (250° range, 6.25° per tick)
+// Level 1 = tick #4 (10% into sweep, slightly below 8 o'clock)
+// Level 6 = tick #40 (100%, far-right maximum)
+// Levels 2-5 evenly spaced (7.2 ticks apart)
 const LEVELS = {
-    1: -105,  // Closer to 8:30 - grounded start
-    2: -65,   // Rising
-    3: -25,   // Approaching noon
-    4: 15,    // Past noon, building
-    5: 65,    // Strong
-    6: 115    // Peak - strong but not cartoonish
+    1: -110,  // Tick #4 - grounded start, slightly below 8 o'clock
+    2: -65,   // Tick #11.2 - rising
+    3: -20,   // Tick #18.4 - approaching noon
+    4: 25,    // Tick #25.6 - past noon, building
+    5: 70,    // Tick #32.8 - strong
+    6: 115    // Tick #40 - peak, far-right maximum
 };
 
 // DOM elements
