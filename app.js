@@ -59,7 +59,7 @@ const LEVELS = {
 };
 
 // DOM elements
-const needle = document.getElementById('needle');
+const needle = document.getElementById('needle-group');
 const helpOverlay = document.getElementById('help-overlay');
 
 /**
@@ -134,8 +134,8 @@ function handleKeyPress(event) {
  * @param {number} angle - Rotation angle in degrees
  */
 function setNeedleRotation(angle) {
-    // Use SVG transform attribute with rotation center at (400, 350)
-    needle.setAttribute('transform', `rotate(${angle} 400 350)`);
+    // Use SVG transform attribute with rotation center at (957.03, 764.11)
+    needle.setAttribute('transform', `rotate(${angle} 957.03 764.11)`);
 }
 
 /**
