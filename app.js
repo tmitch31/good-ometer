@@ -42,8 +42,8 @@ const ARROW_STEP_DEGREES = 5;
 
 // Idle needle motion (subtle "alive" oscillation when at rest)
 const IDLE_CONFIG = {
-    amplitude: 0.4,   // degrees
-    speed: 0.0012     // radians per ms
+    amplitude: 1.0,   // degrees
+    speed: 0.0014     // radians per ms
 };
 
 // Dial geometry - 40 tick marks across the full angular sweep
