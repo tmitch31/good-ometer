@@ -48,7 +48,7 @@ const LEVEL_OVERSHOOT = 2; // degrees — subtle, not exaggerated
 
 // Idle needle motion (subtle "alive" oscillation when at rest)
 const IDLE_CONFIG = {
-    amplitude: 1.0,   // degrees
+    amplitude: 1.2,   // degrees
     speed: 0.0014     // radians per ms
 };
 
