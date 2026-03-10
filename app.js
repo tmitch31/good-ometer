@@ -16,6 +16,7 @@ let animationFrameId = null;
 
 let applauseCharge = 0; // degrees added to the right of the current level
 let wasWobbling = false;  // tracks wobble→calm transition for charge retention
+let isIdling = false;     // true once needle has entered idle oscillation mode
 let idlePhase = Math.random() * Math.PI * 2; // phase for idle oscillation
 
 // Spring physics constants (tuned for smooth, mechanical feel)
@@ -226,6 +227,13 @@ function springStep() {
         const applauseActive = (now < wobbleUntil) || (applauseCharge > 0);
 
         if (!applauseActive) {
+            // On the very first idle frame, seed phase to 0 so sin(0)=0 and
+            // the oscillation begins exactly at the resting position — no jerk.
+            if (!isIdling) {
+                idlePhase = 0;
+                isIdling = true;
+            }
+
             idlePhase += IDLE_CONFIG.speed * 16; // approx per-frame advance
             const idleOffset = Math.sin(idlePhase) * IDLE_CONFIG.amplitude;
 
@@ -258,6 +266,7 @@ function animateToAngle(angle) {
 
     targetAngle = angle;
     isAnimating = true;
+    isIdling = false; // leaving idle — phase will be re-seeded on next idle entry
 
     // Start spring animation loop
     animationFrameId = requestAnimationFrame(springStep);
@@ -303,6 +312,7 @@ function stepUp() {
     const maxAllowed = LEVELS[8] + 20; // Can nudge slightly past Level 8
 
     targetAngle = Math.min(newTarget, maxAllowed);
+    isIdling = false;
 
     // Ensure animation loop is running
     if (!isAnimating) {
@@ -323,6 +333,7 @@ function stepDown() {
     const minAllowed = LEVELS[1]; // Can't go below Level 1
 
     targetAngle = Math.max(newTarget, minAllowed);
+    isIdling = false;
 
     // Ensure animation loop is running
     if (!isAnimating) {
