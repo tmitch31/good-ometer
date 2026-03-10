@@ -54,16 +54,18 @@ const DIAL_MAX_ANGLE = 115;   // Far-right maximum
 const TICK_COUNT = 40;
 const TICK_ANGLE = (DIAL_MAX_ANGLE - DIAL_MIN_ANGLE) / TICK_COUNT;  // 6.625° per tick
 
-// Six discrete preset levels
-// Level 1 = just below 8 o'clock (-135°), Level 6 = DIAL_MAX_ANGLE
-// Levels 2-5 evenly spaced between L1 and L6
+// Eight discrete preset levels
+// Level 1 = just below 8 o'clock (-135°), Level 8 = DIAL_MAX_ANGLE (115°)
+// Levels 2-7 evenly spaced: step = (115 - (-135)) / 7 = 35.714° per level
 const LEVELS = {
-    1: -135,    // Just below 8 o'clock position (more counter-clockwise)
-    2: -85,     // Evenly spaced: -135 + 50 = -85°
-    3: -35,     // Evenly spaced: -85 + 50 = -35°
-    4: 15,      // Evenly spaced: -35 + 50 = 15°
-    5: 65,      // Evenly spaced: 15 + 50 = 65°
-    6: 115      // DIAL_MAX_ANGLE = 115° (far-right maximum)
+    1: -135,   // Just below 8 o'clock position
+    2: -99.3,  // -135 + 35.7
+    3: -63.6,  // -135 + 71.4
+    4: -27.9,  // -135 + 107.1
+    5:   7.9,  // -135 + 142.9
+    6:  43.6,  // -135 + 178.6
+    7:  79.3,  // -135 + 214.3
+    8: 115     // DIAL_MAX_ANGLE = 115° (far-right maximum)
 };
 
 // DOM elements
@@ -111,8 +113,8 @@ function handleKeyPress(event) {
         return;
     }
 
-    // Number keys 1-6: jump to specific level
-    if (key >= '1' && key <= '6') {
+    // Number keys 1-8: jump to specific level
+    if (key >= '1' && key <= '8') {
         const level = parseInt(key);
         setNeedleToLevel(level);
         return;
@@ -163,7 +165,7 @@ function springStep() {
             // First frame after applause ends: absorb a fraction of charge into targetAngle
             // so the needle settles at a genuinely higher resting point
             const retained = applauseCharge * WOBBLE_CONFIG.retentionFactor;
-            targetAngle = Math.min(targetAngle + retained, LEVELS[6] + 20);
+            targetAngle = Math.min(targetAngle + retained, LEVELS[8] + 20);
             applauseCharge -= retained; // only the remainder decays away
             wasWobbling = false;
         }
@@ -197,7 +199,7 @@ function springStep() {
 
     // Allow temporary rightward overdrive, but not infinite
     const maxAngle = Math.max(
-        LEVELS[6] + 30,  // global ceiling (a little past Level 6)
+        LEVELS[8] + 30,  // global ceiling (a little past Level 8)
         targetAngle + WOBBLE_CONFIG.maxOverdrive
     );
     const minAngle = Math.min(targetAngle, LEVELS[1]); // can't go below level 1, only overdrive right
@@ -223,7 +225,7 @@ function springStep() {
             idlePhase += IDLE_CONFIG.speed * 16; // approx per-frame advance
             const idleOffset = Math.sin(idlePhase) * IDLE_CONFIG.amplitude;
 
-            const idleAngle = Math.min(currentAngle + idleOffset, LEVELS[6] + 20);
+            const idleAngle = Math.min(currentAngle + idleOffset, LEVELS[8] + 20);
             setNeedleRotation(idleAngle);
 
             animationFrameId = requestAnimationFrame(springStep);
@@ -264,7 +266,7 @@ function animateToAngle(angle) {
 function setNeedleToLevel(level) {
     // Validate level
     if (level < 1) level = 1;
-    if (level > 6) level = 6;
+    if (level > 8) level = 8;
 
     currentLevel = level;
     const angle = LEVELS[level];
@@ -284,7 +286,7 @@ function setNeedleToLevel(level) {
 function stepUp() {
     // Nudge target angle up by small amount
     const newTarget = targetAngle + ARROW_STEP_DEGREES;
-    const maxAllowed = LEVELS[6] + 20; // Can nudge slightly past Level 6
+    const maxAllowed = LEVELS[8] + 20; // Can nudge slightly past Level 8
 
     targetAngle = Math.min(newTarget, maxAllowed);
 
