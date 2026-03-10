@@ -15,6 +15,7 @@ let velocity = 0;
 let animationFrameId = null;
 
 let applauseCharge = 0; // degrees added to the right of the current level
+let wasWobbling = false;  // tracks wobble→calm transition for charge retention
 let idlePhase = Math.random() * Math.PI * 2; // phase for idle oscillation
 
 // Spring physics constants (tuned for smooth, mechanical feel)
@@ -34,7 +35,8 @@ const WOBBLE_CONFIG = {
     maxVelocity: 16.0,    // safety clamp
     maxOverdrive: 200,    // pump can go much further now
     chargeStep: 8,        // degrees added per spacebar tap
-    chargeDecay: 0.985    // decay per frame once applause ends (slower fallback)
+    chargeDecay: 0.985,   // decay per frame once applause ends (slower fallback)
+    retentionFactor: 0.35 // fraction of peak charge permanently absorbed into targetAngle
 };
 
 // Arrow key nudge amount (small incremental adjustments)
@@ -150,10 +152,24 @@ function setNeedleRotation(angle) {
 function springStep() {
     const now = performance.now();
 
-    // Decay applause charge when not actively applauding
-    if (now >= wobbleUntil) {
+    // Applause charge management
+    const isWobbling = now < wobbleUntil;
+
+    if (isWobbling) {
+        // Actively applauding — charge is held at its current level
+        wasWobbling = true;
+    } else {
+        if (wasWobbling) {
+            // First frame after applause ends: absorb a fraction of charge into targetAngle
+            // so the needle settles at a genuinely higher resting point
+            const retained = applauseCharge * WOBBLE_CONFIG.retentionFactor;
+            targetAngle = Math.min(targetAngle + retained, LEVELS[6] + 20);
+            applauseCharge -= retained; // only the remainder decays away
+            wasWobbling = false;
+        }
+
+        // Decay the remaining (non-retained) charge back to zero
         applauseCharge *= WOBBLE_CONFIG.chargeDecay;
-        // Snap to zero when very small
         if (Math.abs(applauseCharge) < 0.1) {
             applauseCharge = 0;
         }
@@ -165,7 +181,7 @@ function springStep() {
     const springForce = displacement * SPRING_CONFIG.stiffness;
 
     // Calculate damping force
-    const damping = (now < wobbleUntil) ? WOBBLE_CONFIG.damping : SPRING_CONFIG.damping;
+    const damping = isWobbling ? WOBBLE_CONFIG.damping : SPRING_CONFIG.damping;
     const dampingForce = velocity * damping;
 
     // Calculate acceleration (F = ma, so a = F/m)
@@ -252,6 +268,10 @@ function setNeedleToLevel(level) {
 
     currentLevel = level;
     const angle = LEVELS[level];
+
+    // Explicit level jumps clear any lingering applause charge
+    applauseCharge = 0;
+    wasWobbling = false;
 
     animateToAngle(angle);
     console.log(`Level ${level} → ${angle}°`);
