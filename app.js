@@ -42,6 +42,10 @@ const WOBBLE_CONFIG = {
 // Arrow key nudge amount (small incremental adjustments)
 const ARROW_STEP_DEGREES = 5;
 
+// Overshoot amount when jumping to a level via number keys
+// Simulates the inertia of a real mechanical gauge needle
+const LEVEL_OVERSHOOT = 2; // degrees — subtle, not exaggerated
+
 // Idle needle motion (subtle "alive" oscillation when at rest)
 const IDLE_CONFIG = {
     amplitude: 1.0,   // degrees
@@ -261,7 +265,9 @@ function animateToAngle(angle) {
 
 /**
  * Set needle to a specific level
- * @param {number} level - Target level (1-6)
+ * Applies a brief overshoot past the target to mimic mechanical gauge inertia,
+ * then lets the spring settle back to the true level position.
+ * @param {number} level - Target level (1-8)
  */
 function setNeedleToLevel(level) {
     // Validate level
@@ -275,8 +281,16 @@ function setNeedleToLevel(level) {
     applauseCharge = 0;
     wasWobbling = false;
 
-    animateToAngle(angle);
-    console.log(`Level ${level} → ${angle}°`);
+    // Step 1: aim slightly past the target so the spring carries the needle beyond it
+    animateToAngle(angle + LEVEL_OVERSHOOT);
+
+    // Step 2: after a short delay, pull the target back to the true level position
+    // The spring naturally handles the settle-back from the overshoot position
+    setTimeout(() => {
+        targetAngle = angle;
+    }, 200);
+
+    console.log(`Level ${level} → ${angle}° (overshoot +${LEVEL_OVERSHOOT}° for 200ms)`);
 }
 
 /**
